@@ -8,6 +8,7 @@ Hypsometric curve and altimetric curve from DEM (basin-masked).
 
 Outputs: reports/report 1/figs/hypsometric_curve.pdf, altimetric_curve.pdf.
 """
+import csv
 from pathlib import Path
 import numpy as np
 import geopandas as gpd
@@ -19,6 +20,11 @@ from rasterio import windows
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+
+mpl.rcParams["axes.prop_cycle"] = mpl.cycler(
+    color=["#FF5F05", "#13294B", "#009FD4", "#FCB316",
+           "#006230", "#007E8E", "#5C0E41", "#7D3E13"]
+)
 mpl.rcParams["figure.dpi"] = 800
 plt.rcParams["font.family"] = "Times New Roman"
 
@@ -81,9 +87,17 @@ def run():
 
     # Hypsometric integral = area under curve (z_norm vs cum_area_norm)
     hypsometric_integral = np.trapz(z_norm, cum_area_norm)
-    # Cumulative area in km² (pixel area ~ 30*30 m²)
-    cell_area_km2 = (30 * 30) / 1e6
-    cum_area_km2 = np.arange(1, n + 1, dtype=float) * cell_area_km2
+    # Cumulative area in km²: scale by CAMELS basin area (not pixel count)
+    basin_area_km2 = 795.0
+    with open(DATA_DIR / "CAMELS_FR_attributes" / "static_attributes" / "CAMELS_FR_station_general_attributes.csv", "r", encoding="utf-8") as f:
+        for row in csv.DictReader(f, delimiter=";"):
+            if row["sta_code_h3"] == STATION_CODE:
+                try:
+                    basin_area_km2 = float(row.get("sta_area_snap") or basin_area_km2)
+                except (TypeError, ValueError):
+                    pass
+                break
+    cum_area_km2 = cum_area_norm * basin_area_km2
 
     # --- Hypsometric curve ---
     fig, ax = plt.subplots(1, 1, figsize=(4.5, 4))
@@ -102,13 +116,36 @@ def run():
     plt.savefig(FIG_DIR / "hypsometric_curve.pdf", bbox_inches="tight", dpi=800)
     plt.close()
 
-    # --- Altimetric curve ---
+    # --- Altimetric curve with hypsometric on secondary axis ---
     fig, ax = plt.subplots(1, 1, figsize=(4.5, 4))
     ax.spines[["top", "right"]].set_visible(False)
-    ax.plot(cum_area_km2, elev, color="C1", linewidth=1.5)
+    total_area_km2 = cum_area_km2[-1]
+    ax.plot(cum_area_km2, elev, color="C0", linewidth=1.5)
+    ax.set_xlim(0, total_area_km2)
+    ax.set_xticks([0, 200, 400, 600, 795])
+    ax.set_ylim(z_min, z_max)  # Must match right axis [0,1] for exact overlay
     ax.set_xlabel("Cumulative area (km²)")
     ax.set_ylabel("Elevation (m a.s.l.)")
     ax.grid(True, alpha=0.3)
+
+    # Secondary y-axis (right): normalized elevation (same curve, different scale)
+    ax2 = ax.twinx()
+    ax2.set_ylabel("Normalized elevation")
+    ax2.set_ylim(0, 1)
+
+    # Secondary x-axis (top): normalized cumulative area
+    ax_top = ax.secondary_xaxis(
+        "top",
+        functions=(lambda x: x / total_area_km2, lambda x: x * total_area_km2),
+    )
+    ax_top.set_xlim(0, 1)
+    ax_top.set_xticks([0, 0.25, 0.5, 0.75, 1])
+    ax_top.set_xlabel("Normalized cumulative area")
+
+    label_fontsize = plt.rcParams["axes.labelsize"]
+    ax.text(0.02, 0.02, f"integral = {hypsometric_integral:.3f}", transform=ax.transAxes,
+            fontsize=label_fontsize, verticalalignment="bottom")
+
     plt.tight_layout()
     plt.savefig(FIG_DIR / "altimetric_curve.pdf", bbox_inches="tight", dpi=800)
     plt.close()

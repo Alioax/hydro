@@ -18,6 +18,7 @@
 \usepackage{longtable}
 % \usepackage{stfloats}  % Commented out - package not available
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{titlesec}
 \usepackage{setspace}
 \usepackage{xcolor}
@@ -86,7 +87,7 @@
 \vspace*{1.5cm}
 
 % Title
-{\fontsize{36}{42}\selectfont\bfseries\color{UofT_blue} Basin-Scale Hydrologic Characterization of La Dore (CAMELS-FR)\par}
+{\fontsize{36}{42}\selectfont\bfseries\color{UofT_blue} Basin-Scale Hydrologic Characterization of the\\La Dore Basin\par}
 \vspace{3.5cm}
 
 % Author
@@ -94,20 +95,22 @@
 \vspace{2cm}
 
 % Advisors
-{\fontsize{18}{18}\selectfont Supervised by:\par}
-{\fontsize{18}{24}\selectfont Afshin Ashrafzadeh\par}
-\vspace{4.5cm}
+{\fontsize{18}{18}\selectfont Surface Water Hydrology\par}
+{\fontsize{18}{24}\selectfont Dr. Afshin Ashrafzadeh\par}
+\vspace{3cm}
 
 % Date
 {\fontsize{14}{14}\selectfont\today\par}
-\vspace{2cm}
+\vspace{1.5cm}
 
 % Logos
 \begin{figure}[h]
 \centering
-\includegraphics[height=2cm]{figs/U of T Logo.pdf}
-\hspace{1cm}
-\includegraphics[height=2cm]{figs/Universite de Strasbourg Logo.pdf}
+% keep horizontal spacing even if the second logo is disabled
+\hspace*{0.5cm}
+\includegraphics[height=3.5cm]{figs/U of T Logo.pdf}
+\hspace*{0.5cm}
+% \includegraphics[height=2cm]{figs/Universite de Strasbourg Logo.pdf} % (disabled for now)
 \end{figure}
 
 \vfill
@@ -118,21 +121,21 @@
 
 \section*{Abstract}
 
-This report characterizes the La Dore basin (CAMELS-FR station K287191001, 795\,km²) using CAMELS-FR attributes and time series and SRTM DEM. We describe basin physiography (morphometry, stream network, hypsometry), hydroclimate and runoff behavior (daily and monthly P, Q, PET; flow duration curve), and the long-term water balance (1990--2020). Mean annual precipitation is about 1055\,mm/yr, runoff 381\,mm/yr, and runoff ratio 0.36. Remote-sensing products (IMERG, SMAP) are reserved for future work.
+This report was prepared for the Master's Surface Hydrology course taught by Dr.\ Afshin Ashrafzadeh (Fall 2025). The analysis is based on CAMELS-FR, a catchment-scale hydrologic dataset for France that provides standardized basin attributes, meteorological forcings, and discharge time series; from CAMELS-FR, the La Dore basin at Saint-Gervais-sous-Meymont (station code K287191001; area 795\,km²) was selected as a case study. We characterize basin physiography (morphometry, stream network, hypsometry), hydroclimate and runoff behavior (daily and monthly precipitation, discharge, and potential evapotranspiration; flow duration curve), and the long-term water balance for 1990--2020. Mean annual precipitation is about 1055\,mm/yr, runoff 381\,mm/yr, and the runoff ratio is 0.36. The project codebase is available at \href{https://github.com/Alioax/hydro}{github.com/Alioax/hydro}; the codebase includes hooks for remote-sensing products (GPM IMERG, SMAP) to support future extensions, and a planned end-of-report discussion will outline possible research directions building on this workflow.
 
 % ========== 1) INTRODUCTION ==========
 \section{Introduction}
 
-Basin-scale hydrologic characterization supports water resources assessment, flood and low-flow estimation, and understanding of runoff generation. Quantifying physiography, hydroclimate, and water balance in a consistent framework provides a basis for comparison across catchments and for future use of remote-sensing products.
+Basin-scale hydrologic characterization provides essential context for water-resources assessment, flood and low-flow analysis, and interpretation of runoff-generation processes. Using standardized datasets and a consistent workflow makes it possible to compare catchments objectively, communicate key hydrologic signatures, and establish a baseline for subsequent model development or the integration of remote-sensing products. This report builds on the CAMELS-FR dataset \cite{WH7FJR_2024,Delaigue2025CAMELSFR}.
 
-\textbf{Project objectives:}
-\begin{itemize}
+In this report, the project includes:
+\begin{itemize}\setlength\itemsep{0.1em}\setlength\parskip{0pt}\setlength\topsep{0.1em}
   \item Basin physiography and drainage structure (morphometry, stream network, hypsometry).
   \item Hydroclimate and runoff behavior from CAMELS-FR time series.
   \item Water balance (annual and seasonal): precipitation, runoff, PET, residual.
 \end{itemize}
 
-\textbf{Study scope.} This report uses the CAMELS-FR dataset and SRTM DEM for one focus basin (La Dore, station K287191001). IMERG and SMAP remote-sensing products are not used in the present analysis; they are reserved for future work (bias assessment, spatial representativeness, storage constraints).
+\textbf{Study scope.} This report uses the CAMELS-FR dataset and SRTM DEM for one focus basin (La Dore, station K287191001). IMERG and SMAP remote-sensing products are not used in the present analysis; they are reserved for future work.
 
 % ========== 2) STUDY AREA ==========
 \section{Study Area}
@@ -140,20 +143,46 @@ Basin-scale hydrologic characterization supports water resources assessment, flo
 \subsection{Location and Boundary}
 \label{sec:location}
 
-The study basin is La Dore at Saint-Gervais-sous-Meymont (station code K287191001), catchment area 795\,km², outlet elevation 398\,m\,a.s.l.; it is one of the CAMELS-FR basins with area 500--1000\,km² (see Appendix~\ref{app:basins}). Figure~\ref{fig:basin_map} shows the catchment boundary and gauge outlet on a basemap.
+The study basin is La Dore at Saint-Gervais-sous-Meymont (station code K287191001), with a catchment area of 795\,km² and an outlet elevation of 398\,m\,a.s.l. The outlet gauge (monitoring station) is located roughly 100\,km west of the city of Lyon. Figure~\ref{fig:basin_map} shows the catchment boundary and gauge outlet on a basemap.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.95\columnwidth]{map_basin_outlet}
-\caption{Catchment boundary and gauge outlet for station K287191001 (La Dore à Saint-Gervais-sous-Meymont). Area 795\,km²; outlet elevation 398\,m\,a.s.l. Map displayed in Web Mercator (EPSG:3857).}
+\caption{Catchment boundary and gauge outlet for station K287191001 (La Dore à Saint-Gervais-sous-Meymont). Area 795\,km²; outlet elevation 398\,m\,a.s.l. The stream network displayed is from an OpenStreetMap-derived stream product. Map displayed in Web Mercator (EPSG:3857).}
 \label{fig:basin_map}
 \end{figure}
 
-The basin lies in the Massif Central (France); coordinates at the outlet are approximately 3.61°E, 45.69°N (WGS84). The climate is temperate oceanic with continental influence; precipitation and runoff exhibit seasonal variability (winter--spring high flows, summer low flows).
+The basin lies in the Massif Central (France); coordinates at the outlet are approximately 3.61°E, 45.69°N (WGS84). It is one of the CAMELS-FR basins with area 500--1000\,km² (see Appendix~\ref{app:basins}). The climate is temperate oceanic with continental influence; precipitation and runoff exhibit marked seasonality (winter--spring high flows, summer low flows).
 
-\subsection{Morphometry and Shape Metrics}
+% ========== 3) DATA SOURCES ==========
+\section{Data Sources}
 
-Table~\ref{tab:basin_metrics} summarizes basin geometry, elevation, slope, shape, and drainage metrics. The compactness coefficient (1.88) indicates a moderately elongated shape; relief (1232\,m) and mean slope (8.5°) reflect the upland character. Drainage density (0.65\,km$^{-1}$) is typical of permeable, well-vegetated catchments.
+\subsection{CAMELS-FR}
+
+This project uses the CAMELS-FR large-sample hydrology dataset for France \cite{WH7FJR_2024, Delaigue2025CAMELSFR}. CAMELS-FR provides catchment boundaries and gauge locations, standardized catchment attributes (e.g., basin area, elevation and relief, slopes, drainage-network and shape indices), and hydro-meteorological time series including precipitation, air temperature, potential evapotranspiration, and discharge.
+
+In this report, CAMELS-FR is used to (a) define the study basin and its boundary/outlet, (b) extract basin physiographic descriptors for the morphometric summary, and (c) supply the daily/monthly time series used for hydroclimate characterization, the flow-duration curve, and the 1990--2020 water-balance analysis. CAMELS-FR also provides a companion set of standardized graphical fact sheets for each basin; see Appendix~\ref{app:fact_sheet} for the fact sheet for La Dore and an at-a-glance summary with additional basin details.
+
+\subsection{Terrain Data (SRTM DEM)}
+
+SRTM DEM (30\,m) is used to derive terrain, drainage structure, and elevation--area relationships. GPM IMERG \cite{imergdp} and SMAP \cite{smap} are available for future extension (precipitation bias, soil moisture) but are not used in this report.
+
+\subsection{Analysis Period and Data Screening}
+
+Unless stated otherwise, the analysis period is 1990--2020 for the water balance and flow-duration curve, while the time-series snippet uses 2017--2020. Days with missing or invalid discharge are dropped; monthly aggregates use only months with at least 90\% valid days.
+
+% ========== 4) EXPLORATORY ANALYSES ==========
+\section{Exploratory Analyses}
+
+This class project is organized as a set of exploratory analyses. For each analysis, we briefly summarize the workflow and then report the key outputs.
+
+\subsection{Basin Physiography and Drainage Structure}
+
+\textbf{Workflow.} Basin boundary and outlet are taken from CAMELS-FR geography (catchment boundaries and gauge outlet \texttt{.gpkg}). Basin terrain metrics and hypsometry are derived from SRTM DEM.
+
+The stream network shown in Figure~\ref{fig:basin_map} is taken from an OpenStreetMap-derived stream product (not delineated in this project). We attempted to delineate streams from the DEM using \texttt{pysheds} \cite{bartos_2020} with D8 flow direction and flow accumulation; however, the extracted network and main channel were not satisfactory despite extensive debugging. As a result, we used the existing stream product for visualization. A priority for future work is to diagnose and fix the DEM-based delineation (e.g., preprocessing, sinks/breaching, burn-in, projection/resolution consistency, and threshold selection) so the stream network can be generated reproducibly from the DEM.
+
+\textbf{Outputs.} Figure~\ref{fig:basin_map} provides a plan-view overview (boundary, drainage, and outlet gauge). Table~\ref{tab:basin_metrics} summarizes basin geometry, elevation, slope, shape, and drainage metrics.
 
 \begin{table}[htbp]
 \centering
@@ -162,123 +191,117 @@ Table~\ref{tab:basin_metrics} summarizes basin geometry, elevation, slope, shape
 \input{basin_metrics_table.tex}
 \end{table}
 
-\subsection{Drainage Network Characteristics}
-
-The stream network is overlaid on the basin map (Figure~\ref{fig:basin_map}). Streams were defined by a flow-accumulation threshold of 200 cells (30\,m resolution), yielding a dendritic network consistent with the basin morphology. The main channel was traced from the outlet upstream; its length is reported in Table~\ref{tab:basin_metrics}.
-
 \subsection{Hypsometry and Altimetry}
 
-Figure~\ref{fig:hypsometric} shows the hypsometric curve and Figure~\ref{fig:altimetric} the cumulative area--elevation (altimetric) curve. The hypsometric integral is 0.37, indicating a basin with a relatively uniform distribution of area with elevation (neither strongly youth-like nor equilibrium). The altimetric curve shows most of the area between about 400 and 1200\,m\,a.s.l.
+\textbf{Workflow.} The elevation distribution is summarized using the cumulative area--elevation (altimetric) curve. DEM pixels within the La Dore basin are sorted by elevation; the cumulative area at each elevation is computed as the area of all pixels at or below that elevation. The classic hypsometric curve is the same relationship expressed in normalized coordinates: normalized cumulative area (0--1) versus normalized elevation $(z - z_{\min})/(z_{\max} - z_{\min})$. The hypsometric integral is the area under the normalized curve.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=1\columnwidth]{hypsometric_curve}
-\caption{Hypsometric curve: normalized elevation vs normalized cumulative area.}
-\label{fig:hypsometric}
-\end{figure}
+\textbf{Outputs.} Figure~\ref{fig:altimetric} shows the cumulative area--elevation curve with both raw and normalized axes (top axis: normalized cumulative area; right axis: normalized elevation). The hypsometric integral is 0.37, indicating that the basin area is biased toward lower elevations. Most of the basin area lies between about 400 and 1200\,m\,a.s.l.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=1\columnwidth]{altimetric_curve}
-\caption{Altimetric curve: cumulative area vs elevation (m\,a.s.l.).}
+\caption{Altimetric (cumulative area--elevation) curve for La Dore. Bottom/left axes show cumulative area (km$^2$) and elevation (m\,a.s.l.); top/right axes show the same curve in normalized coordinates (0--1). The hypsometric integral ($\approx 0.37$) is the area under the normalized curve.}
 \label{fig:altimetric}
 \end{figure}
 
-% ========== 3) DATA ==========
-\section{Data}
-
-\subsection{CAMELS-FR}
-
-Attributes used: station general (\texttt{sta\_area\_snap}, \texttt{sta\_altitude\_snap}), topography (elevation, slope, drainage density, compactness, form factor, etc.). Time series: daily and monthly precipitation (\texttt{tsd\_prec}, \texttt{tsm\_prec}), discharge (\texttt{tsd\_q\_mm}, \texttt{tsm\_q\_mm}), potential evapotranspiration Oudin (\texttt{tsd\_pet\_ou}, \texttt{tsm\_pet\_ou}), and temperature (\texttt{tsd\_temp}, \texttt{tsm\_temp}). Analysis period: 1990--2020 for water balance and flow duration curve; time-series snippet figure uses 2017--2020. Missing-data policy: days with missing or invalid discharge are dropped; monthly aggregates use only months with at least 90\% valid days.
-
-\subsection{Remote Sensing}
-
-SRTM DEM (30\,m) is used for terrain and stream network derivation. GPM IMERG and SMAP are available for future extension (precipitation bias, soil moisture); they are not used in this report.
-
-% ========== 4) METHODS ==========
-\section{Methods}
-
-\subsection{GIS and DEM Processing}
-
-Basin boundary and outlet are taken from CAMELS-FR geography (catchment boundaries and gauge outlet \texttt{.gpkg}). DEM preprocessing: projection to a metric CRS, optional sink filling, flow direction and flow accumulation (D8). Streams are defined by an accumulation threshold (value stated in script and below). Main channel (longest flow path) is delineated from the outlet upstream; Strahler order is assigned to the network.
-
-\subsection{Computation of Basin Metrics}
-
-Compactness coefficient (Gravelius): $C = P / (2\sqrt{\pi A})$, with $P$ perimeter and $A$ area. Drainage density: $D_d = \sum L / A$ (total stream length over area). Hypsometric curve: normalized elevation $(z - z_{\min})/(z_{\max} - z_{\min})$ vs normalized cumulative area; hypsometric integral is the area under this curve.
-
-\subsection{Water Balance Framework}
-
-Long-term: $P - Q - \mathrm{PET} \approx \Delta S$; over many years $\Delta S \to 0$. Seasonal/monthly: residual $\Delta S = P - Q - \mathrm{PET}$ (interpreted cautiously as storage change). Runoff ratio $Q/P$. Metrics: mean annual $P$, $Q$, PET (mm/yr), residual, runoff ratio, residual fraction $(P - Q - \mathrm{PET})/P$. Monthly climatology: 12-month average of $P$, $Q$, PET.
-
-\subsection{Uncertainty and Assumptions}
-
-Discharge is from a single gauge and is assumed representative of basin outlet runoff. Precipitation and PET are from the SAFRAN reanalysis and ISBA land-surface model (Météo-France); they are spatially aggregated to the catchment and may not capture local variability. PET (Oudin) is a potential, not actual, evapotranspiration; the residual in the water balance includes storage change and any bias in P or PET. The basin has non-negligible relief and winter precipitation; snow accumulation and melt can contribute to seasonal storage and are not explicitly separated here.
-
-% ========== 5) RESULTS ==========
-\section{Results}
-
-\subsection{Basin Physiography}
-
-Table~\ref{tab:basin_metrics} gives the headline metrics. Key numbers: area 795\,km², perimeter 188\,km, relief 1232\,m, mean slope 8.5°, compactness coefficient 1.88, drainage density 0.65\,km$^{-1}$. The basin is moderately elongated with substantial relief; the main channel length (about 10\,km from DEM) is shorter than the basin length (32\,km), consistent with a branched network. Over the analysis period (1990--2020), mean annual precipitation is 1055\,mm/yr, runoff 381\,mm/yr, and PET (Oudin) 592\,mm/yr; the runoff ratio $Q/P$ is 0.36 and the long-term residual fraction $(P - Q - \mathrm{PET})/P$ is about 8\%.
-
 \subsection{Hydroclimate and Runoff Behavior}
 
-Figure~\ref{fig:timeseries_snippet} shows discharge, rainfall, and temperature for 2017--2020 with aligned time axis. Figure~\ref{fig:climatology} shows monthly climatology; Figure~\ref{fig:fdc} the flow duration curve.
+\textbf{Workflow.} We summarize variability at daily scale using a short multi-year snippet and at seasonal scale using monthly climatology. Runoff behavior is further summarized with a flow-duration curve (daily $Q$, 1990--2020).
 
-\begin{figure*}[htbp]
+\textbf{Flow-duration curve.} The flow-duration curve (FDC; Figure~\ref{fig:fdc}) uses all valid daily discharge values from 1990--2020 (no seasonal stratification), expressed as basin-normalized runoff depth (mm/day). To construct the FDC, daily values are pooled, missing/invalid discharge is removed, and the remaining values are sorted from largest to smallest. Each ranked value $Q_{(i)}$ is assigned an exceedance probability (percent of time flow is equaled or exceeded), computed as
+\[
+p_i = 100 \times \frac{i}{N+1},
+\]
+where $i$ is the rank ($i=1$ is the largest flow) and $N$ is the number of valid daily values. The curve then plots $Q_{(i)}$ against $p_i$; discharge is shown on a logarithmic axis to resolve both high flows (small exceedance) and low flows (near-perennial exceedance) on the same panel.
+
+\textbf{Interpretation.} In Figure~\ref{fig:fdc}, the upper tail (small exceedance percentages) is steep, indicating that the largest flows occur relatively infrequently and drop off quickly---consistent with event-driven peaks superimposed on a seasonal regime. The mid-portion of the curve is comparatively smooth, suggesting a persistent range of typical flows rather than abrupt switching between wet and dry states. The lower tail approaches a small but nonzero discharge (order-of-magnitude $10^{-1}$\,mm/day), implying perennial behavior with low flows generally maintained, likely supported by catchment storage/baseflow. Approximate read-offs from the curve place the median daily runoff near $\sim$1\,mm/day, while low-flow conditions (e.g., exceedance $\sim$90\%) are on the order of a few $10^{-1}$\,mm/day. Overall, the FDC complements Figures~\ref{fig:timeseries_snippet}--\ref{fig:climatology} by quantifying how frequently different parts of the flow regime occur, separating rare high-flow behavior from the more persistent baseflow/typical-flow regime.
+
+\textbf{Outputs.} Figure~\ref{fig:timeseries_snippet} compiles daily discharge, basin-average rainfall, potential evapotranspiration (PET), and air temperature for 2017--2020 on a common time axis. Temperature and PET show a strong annual cycle (winter minima and summer maxima), with PET reaching order-of-magnitude $\sim$4--5\,mm/day in summer. This seasonal atmospheric demand provides context for the discharge regime: flows are generally higher and more persistent during the cool season, while extended low-flow periods dominate during the warm season when PET is high.
+
+Rainfall occurs throughout the year as intermittent events, including occasional high-intensity days (peaks approaching $\sim$60\,mm). However, the discharge response to rainfall is modulated by season and antecedent wetness. During late autumn through spring, rainfall events often coincide with sharp runoff peaks and sustained elevated flow, suggesting relatively full catchment storage and efficient conversion of precipitation to streamflow. In contrast, during summer, even when rainfall occurs, discharge commonly remains low or responds weakly, consistent with larger soil-moisture deficits and stronger evaporative demand that reduces effective precipitation and limits runoff generation. Prolonged recession periods following wet-season peaks highlight the role of catchment storage and groundwater contributions in maintaining baseflow between events.
+
+Figure~\ref{fig:climatology} summarizes the monthly climatology (multi-year monthly means) of precipitation ($P$), discharge/runoff ($Q$), and PET. Precipitation remains comparatively high across much of the year (roughly $\sim$65--110\,mm/month), with an enhancement from late spring through autumn. In contrast, PET peaks strongly in the warm season: it is minimal in winter (single digits to low teens mm/month), rises rapidly in spring, and reaches maxima in early--mid summer (order-of-magnitude $\sim$100+\,mm/month), before declining again in autumn.
+
+The discharge climatology follows the combined influence of $P$ and PET rather than precipitation alone. Highest $Q$ occurs in the cool season (approximately Jan--Mar and again in late autumn/early winter), when PET is low and a larger fraction of precipitation becomes effective rainfall, allowing catchment storage to remain high and sustain runoff. Through late spring and summer, $Q$ decreases steadily to a clear late-summer minimum, despite precipitation remaining substantial in some months, indicating that high PET and associated soil-moisture deficits suppress runoff generation.
+
+Viewed as a seasonal partitioning, the figure highlights three regimes: (i) winter surplus ($P \gg$ PET) with the highest runoff and runoff efficiency ($Q/P$); (ii) summer deficit (PET $\gtrsim P$) with the lowest runoff; and (iii) an autumn transition when PET declines while $P$ remains high, promoting catchment re-wetting and recovery of $Q$ toward winter levels. Figure~\ref{fig:fdc} shows the flow-duration curve.
+
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=1\textwidth]{timeseries_flow_precip_temp_2017_2020}
-\caption{Daily time series of flow rate, rainfall, PET, and temperature (2017--2020). Shared time axis.}
+\caption{Daily discharge, rainfall, potential evapotranspiration (PET), and air temperature for 2017--2020. The synchronized panels highlight strong seasonality in temperature and PET (summer maxima, winter minima) and show that higher, more sustained flows occur predominantly in the cool season when PET is low, whereas warm-season high PET coincides with extended low flows and generally muted runoff responses to rainfall events.}
 \label{fig:timeseries_snippet}
 \end{figure*}
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=1\columnwidth]{monthly_climatology}
-\caption{Monthly climatology (1990--2020): 12-month average of precipitation, discharge, and PET.}
+\caption{Monthly climatology of precipitation ($P$), discharge ($Q$), and potential evapotranspiration (PET). PET increases sharply from spring to a summer maximum, coinciding with a pronounced reduction in $Q$, while cool-season low PET aligns with the highest $Q$ and greatest runoff efficiency, indicating strong seasonal control of streamflow by the balance between water inputs and atmospheric demand.}
 \label{fig:climatology}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=1\columnwidth]{flow_duration_curve}
-\caption{Flow duration curve (daily Q, 1990--2020): percent of time flow is exceeded vs discharge.}
+\caption{Flow-duration curve of daily discharge (1990--2020). Daily $Q$ values (mm/day; basin-normalized) are ranked from highest to lowest and plotted against exceedance probability $p$ (percent of time flow is equaled or exceeded; $p_i = 100\, i/(N+1)$). Discharge is plotted on a logarithmic axis to emphasize both high-flow and low-flow behavior.}
 \label{fig:fdc}
 \end{figure}
 
 \subsection{Water Balance}
 
-Figure~\ref{fig:water_balance} shows annual $P$, $Q$, PET, and residual by year. Long-term means (1990--2020): $P \approx 1055$\,mm/yr, $Q \approx 381$\,mm/yr, PET $\approx 592$\,mm/yr; runoff ratio $Q/P \approx 0.36$; residual (storage term) $\approx 82$\,mm/yr ($\sim$8\% of $P$). The positive residual on average is consistent with minor storage accumulation or uncertainty in P/PET. Seasonal residuals (from monthly climatology) reflect soil moisture and, in winter, possible snow storage.
+\textbf{Workflow.} We use the long-term water-balance identity $P - Q - \mathrm{PET} \approx \Delta S$, where $\Delta S$ is interpreted as a residual that combines storage change and data/model uncertainty. The runoff ratio is $Q/P$. We summarize annual totals and long-term means for 1990--2020.
 
-\begin{figure*}[htbp]
+\textbf{Annual water-balance aggregation.} Annual precipitation ($P$) and potential evapotranspiration (PET) were computed as the sum of daily basin-average values for each calendar year. Annual runoff ($Q$) was computed by converting daily mean discharge to an equivalent basin-depth (mm/day) using the catchment area and summing across the year to obtain mm/yr. The plotted residual is
+\[
+R = P - Q - \mathrm{PET}.
+\]
+Because PET represents potential (atmospheric-demand-limited) evapotranspiration rather than actual evapotranspiration (ET), $R$ should be interpreted as a combined term that can include changes in catchment storage ($\Delta S$), differences between ET and PET, and forcing/measurement errors (e.g., precipitation undercatch, discharge uncertainty).
+
+\textbf{Outputs.} Figure~\ref{fig:water_balance} summarizes the interannual water balance from 1990--2020 by comparing annual $P$, annual $Q$, annual PET, and the residual ($R = P - Q - \mathrm{PET}$). Across the record, precipitation exhibits strong year-to-year variability, while PET is comparatively stable and primarily reflects climatic energy demand (smaller interannual swings than $P$). Runoff varies substantially and generally co-varies with $P$, indicating that wetter years tend to produce higher annual runoff, whereas drier years yield lower runoff totals.
+
+The residual provides a compact diagnostic of whether annual precipitation is accounted for by runoff plus atmospheric demand. Positive residual years indicate that $P$ exceeds $(Q + \mathrm{PET})$, consistent with conditions where some combination of (i) catchment storage increases (soil/groundwater recharge) and/or (ii) actual evapotranspiration is below PET (water-limited ET). Negative residual years indicate that $(Q + \mathrm{PET})$ exceeds $P$, which can occur when stored water from prior wet periods is released (net storage drawdown), when actual ET approaches/exceeds the PET proxy used, or when input/output uncertainties are non-negligible. For this reason, the residual should be interpreted qualitatively---as an indicator of storage/closure behavior and potential data/forcing inconsistencies---rather than a direct estimate of storage change alone.
+
+Long-term means (1990--2020) are: $P \approx 1055$\,mm/yr, $Q \approx 381$\,mm/yr, PET $\approx 592$\,mm/yr, runoff ratio $Q/P \approx 0.36$, and residual $\approx 82$\,mm/yr ($\sim$8\% of $P$).
+
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=1\textwidth]{annual_water_balance}
-\caption{Annual water balance: precipitation, discharge, PET, and residual (mm/yr) by year.}
+\caption{Annual water-balance components (1990--2020): precipitation ($P$), runoff ($Q$) (basin-normalized), and potential evapotranspiration (PET) (all in mm/yr). The residual is $R = P - Q - \mathrm{PET}$. Because PET is potential (not actual) evapotranspiration, $R$ represents a combined closure term that may include storage change, ET--PET differences, and forcing/measurement uncertainty.}
 \label{fig:water_balance}
 \end{figure*}
 
-% ========== 6) DISCUSSION ==========
-\section{Discussion}
+% ========== 6) FUTURE RESEARCH ==========
+\section{Future Research}
 
-Runoff in La Dore is controlled by seasonal precipitation and PET (higher $Q$ in winter--spring, lower in summer), by the basin's moderate slopes and drainage density, and by storage (soil moisture, possibly snow). A runoff ratio of 0.36 is within the range typical for temperate, mid-elevation catchments. Limitations include single-gauge discharge, reanalysis-based P and PET, and the use of PET rather than actual ET. Future work with IMERG could assess precipitation bias and spatial representativeness; SMAP could constrain seasonal storage and improve water-balance closure.
+Runoff in La Dore is controlled by seasonal precipitation and PET (higher $Q$ in winter--spring, lower in summer), by the basin's moderate slopes and drainage density, and by storage (soil moisture, possibly snow). A runoff ratio of 0.36 is within the range typical for temperate, mid-elevation catchments. Limitations include single-gauge discharge, reanalysis-based P and PET, and the use of PET rather than actual ET. The following subsections outline promising directions for future research.
 
-% ========== 7) CONCLUSION ==========
+\subsection{Hydrological Modeling and Scenario Analysis}
+
+An immediate extension is to implement a rainfall--runoff model for the La Dore basin to deepen process understanding and enable scenario testing. Thus far, analysis has been empirical; introducing a calibrated hydrological model (e.g., a conceptual model like GR4J or similar) would allow simulation of streamflow under varied conditions. This would illuminate the basin's runoff sensitivity to changes in precipitation or evapotranspiration, and enable experiments such as adjusting inputs to mimic climate change or land-use shifts. Such modeling aligns with the CAMELS-FR dataset's aim of supporting model benchmarking across basins, and would yield quantitative insight into how the moderate-relief La Dore might respond to extreme events or future climatic variability. Ultimately, a model provides a predictive tool to complement the descriptive analyses, refining our ability to attribute changes in flow regimes to specific drivers.
+
+\subsection{Integration of Satellite Precipitation Data}
+
+Another promising direction is to leverage high-resolution satellite precipitation estimates (e.g., NASA's GPM IMERG) to validate and enhance the basin's precipitation inputs. Gauge-based rainfall data, while reliable at a point, may miss spatial variability in the catchment, especially during convective storms. IMERG offers near-global coverage and has shown generally strong agreement with European gauge-based datasets ($R^2\sim0.8$). By comparing IMERG rainfall with ground observations over La Dore, one can identify biases or under-catch issues and improve the water balance closure. Moreover, incorporating IMERG as an additional forcing or for bias-correction could sharpen analysis of extreme events (e.g., intense rainfalls leading to floods) by providing better spatial and temporal resolution. Care must be taken in areas of complex terrain (IMERG can underestimate precipitation in mountains), but given La Dore's moderate relief, satellite data integration is a feasible step to strengthen precipitation assessment and ensure the robustness of runoff calculations.
+
+\subsection{Leveraging Satellite Soil Moisture for Runoff Dynamics}
+
+The availability of SMAP soil moisture data opens an opportunity to investigate subsurface conditions and their influence on runoff. Antecedent soil moisture is a known control on flood generation, yet the current study inferred it only indirectly through long-term balance. By using SMAP (which provides near-surface soil moisture observations), future work can examine how wetness levels prior to rainfall affect stream responses. Recent research demonstrates that runoff generation in small basins exhibits threshold behavior that is captured only when combining antecedent soil moisture with rainfall metrics. Applying this concept, one could analyze La Dore's rainfall--runoff events to determine critical soil saturation thresholds for runoff initiation, improving flood predictability. Additionally, SMAP data can be assimilated or compared with modelled soil moisture, serving as an independent check on hydrological model states. Studies have shown that satellite-derived moisture correlates well with deeper storage changes and can help validate model simulations of root-zone soil moisture and groundwater dynamics. Incorporating SMAP thus offers a way to link surface observations with subsurface processes in the basin, refining our understanding of infiltration, storage, and baseflow generation under temperate conditions.
+
+\subsection{Cross-Basin Comparative Analysis}
+
+Finally, situating the La Dore findings within a broader regional context would add significant value. A single basin's behavior can be idiosyncratic; cross-comparing La Dore with other French catchments (especially the 654 minimally disturbed basins in CAMELS-FR) can reveal whether its hydrological patterns are general or unique. By examining metrics like runoff ratios, flow duration characteristics, or seasonality across similar temperate basins, one could identify how factors such as geology or relief contribute to differences in water response. This comparative approach aligns with the ethos of large-sample hydrology---no single watershed captures the full diversity of hydrologic behavior---and helps assess the generality of conclusions drawn from La Dore. It could also involve testing a hydrological model trained on La Dore against neighboring basins to evaluate model transferability. Overall, multi-basin analysis would strengthen the study by highlighting broader hydroclimatic patterns and ensuring that insights from La Dore are placed in the context of regional hydrology and long-term change. Each basin comparison or grouping could uncover systematic trends (or anomalies) that single-basin analysis might overlook, providing a richer foundation for future hydrological investigations.
+
+% ========== CONCLUSION ==========
 \section{Conclusion}
 
-\begin{itemize}
-  \item Basin La Dore (K287191001): 795\,km², relief 1232\,m, compactness 1.88, drainage density 0.65\,km$^{-1}$.
-  \item Hypsometric integral 0.37; stream network and main channel derived from SRTM (threshold 200 cells).
-  \item Analysis period 1990--2020: mean annual P $\approx 1055$\,mm/yr, Q $\approx 381$\,mm/yr, PET $\approx 592$\,mm/yr.
-  \item Runoff ratio $Q/P \approx 0.36$; residual $\approx 8$\% of $P$.
-  \item Time series (2017--2020), monthly climatology, flow duration curve, and annual water balance are presented.
-  \item Next steps: IMERG bias check, SMAP for storage constraint, and potential use of these data for model calibration or regionalization.
-\end{itemize}
+We characterized the La Dore basin (795\,km²) using CAMELS-FR and SRTM DEM. Mean annual precipitation is about 1055\,mm/yr, runoff 381\,mm/yr, and the runoff ratio is 0.36, with strong seasonality (winter--spring high flows, summer low flows). The analysis provides a baseline for hydrological modeling, satellite integration, and cross-basin comparison.
 
 \printbibliography
 
 \clearpage
 \appendix
 \onecolumn
+\phantomsection
 \section{CAMELS-FR basins with catchment area 500--1000\,km²}
 \label{app:basins}
 
@@ -311,5 +334,19 @@ The following 77 basins from the CAMELS-FR dataset have catchment area between 5
 \end{longtable}
 \end{center}
 \normalsize
+
+\clearpage
+\phantomsection
+\section{CAMELS-FR graphical fact sheet for basin K287191001}
+\label{app:fact_sheet}
+
+Figure~\ref{fig:camelsfr_fact_sheet} is taken from the CAMELS-FR graphical fact sheets dataset, which provides a standardized one-page fact sheet (with the same type of figure and layout) for each basin in CAMELS-FR \cite{KK2SVJ_2024}.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{K287191001_CAMELS_FR_fact_sheet_EN.png}
+\caption{CAMELS-FR graphical fact sheet for La Dore at Saint-Gervais-sous-Meymont (station code K287191001), reproduced from the CAMELS-FR graphical fact sheets dataset \cite{KK2SVJ_2024}.}
+\label{fig:camelsfr_fact_sheet}
+\end{figure}
 
 \end{document}
