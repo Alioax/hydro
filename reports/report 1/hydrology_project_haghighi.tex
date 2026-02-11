@@ -1,0 +1,315 @@
+\documentclass[9pt, twocolumn]{extarticle}
+% \documentclass[9pt, onecolumn]{extarticle}
+
+%%% Using extarticle instead of the standard article class to allow 8pt font size
+%%% Title and author fields are manually resized (e.g., \Huge, \large) for better fitting
+%%% \vspace*{-\topskip} is applied in \maketitle to remove the extra top margin above the title
+
+\usepackage{graphicx}
+\graphicspath{{figs/}}
+\usepackage[a4paper, margin=1.5cm, bottom=2.5cm]{geometry}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{caption}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{longtable}
+% \usepackage{stfloats}  % Commented out - package not available
+\usepackage{amsmath}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{xcolor}
+\definecolor{UofT_blue}{HTML}{0baedd}
+\usepackage[colorlinks=true,
+            linkcolor=UofT_blue,
+            urlcolor=UofT_blue,
+            citecolor=UofT_blue]{hyperref}
+\usepackage[
+  backend=biber,
+  style=numeric,          % numbered refs
+  citestyle=numeric-comp, % [1-3] compression
+  sorting=none            % order of citation
+  ]{biblatex}
+  \addbibresource{references.bib}
+
+\newcommand{\mystretch}{1.2}
+\newcommand{\myfigmargin}{4pt}
+
+
+\setlength{\textfloatsep}{\myfigmargin}    % text ↔ top/bottom floats
+\setlength{\intextsep}{\myfigmargin}       % text ↔ here-placed floats ([h])
+\setlength{\floatsep}{\myfigmargin}        % between floats
+\setlength{\dbltextfloatsep}{\myfigmargin} % two-column floats (figure*)
+\setlength{\dblfloatsep}{\myfigmargin}
+
+
+\captionsetup[figure]{belowskip=0pt, skip=4pt, labelfont=bf, justification=justified, singlelinecheck=false, font={stretch=\mystretch}}
+\captionsetup[subfloat]{labelfont=normalfont, justification=centering, singlelinecheck=false, farskip=4pt,captionskip=0pt, font={stretch=\mystretch}}
+\captionsetup[subfloat]{belowskip=-14pt, font={stretch=\mystretch}}
+\captionsetup[table]{labelfont=bf, justification=justified, singlelinecheck=false, skip=2pt, farskip=0pt, captionskip=0pt, belowskip=0pt, font={stretch=\mystretch}}
+  
+\renewcommand{\baselinestretch}{\mystretch} % 1.2x line spacing
+  
+\setlength{\columnsep}{0.5cm}
+  
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{0pt}%
+  {0.8ex plus 0.5ex minus 0.2ex}%
+  {0.5ex}%
+  {\normalfont\Large\bfseries}}
+\makeatother
+
+
+\makeatletter
+\renewcommand{\maketitle}{\bgroup\setlength{\parindent}{0pt}
+\vspace*{-\topskip}% remove the top margin above title
+\begin{flushleft}
+  \huge\textbf{\@title}
+
+  \vspace{0.20cm}
+
+  \normalsize\@author \hfill \normalsize\@date
+
+  \vspace{0.25cm}\hrule\vspace{0.25cm}
+\end{flushleft}
+\egroup}
+\makeatother
+
+
+\begin{document}
+
+% Cover Page
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+
+% Title
+{\fontsize{36}{42}\selectfont\bfseries\color{UofT_blue} Basin-Scale Hydrologic Characterization of La Dore (CAMELS-FR)\par}
+\vspace{3.5cm}
+
+% Author
+{\fontsize{18}{18}\selectfont Ali Haghighi\par}
+\vspace{2cm}
+
+% Advisors
+{\fontsize{18}{18}\selectfont Supervised by:\par}
+{\fontsize{18}{24}\selectfont Afshin Ashrafzadeh\par}
+\vspace{4.5cm}
+
+% Date
+{\fontsize{14}{14}\selectfont\today\par}
+\vspace{2cm}
+
+% Logos
+\begin{figure}[h]
+\centering
+\includegraphics[height=2cm]{figs/U of T Logo.pdf}
+\hspace{1cm}
+\includegraphics[height=2cm]{figs/Universite de Strasbourg Logo.pdf}
+\end{figure}
+
+\vfill
+
+\end{titlepage}
+
+\newpage
+
+\section*{Abstract}
+
+This report characterizes the La Dore basin (CAMELS-FR station K287191001, 795\,km²) using CAMELS-FR attributes and time series and SRTM DEM. We describe basin physiography (morphometry, stream network, hypsometry), hydroclimate and runoff behavior (daily and monthly P, Q, PET; flow duration curve), and the long-term water balance (1990--2020). Mean annual precipitation is about 1055\,mm/yr, runoff 381\,mm/yr, and runoff ratio 0.36. Remote-sensing products (IMERG, SMAP) are reserved for future work.
+
+% ========== 1) INTRODUCTION ==========
+\section{Introduction}
+
+Basin-scale hydrologic characterization supports water resources assessment, flood and low-flow estimation, and understanding of runoff generation. Quantifying physiography, hydroclimate, and water balance in a consistent framework provides a basis for comparison across catchments and for future use of remote-sensing products.
+
+\textbf{Project objectives:}
+\begin{itemize}
+  \item Basin physiography and drainage structure (morphometry, stream network, hypsometry).
+  \item Hydroclimate and runoff behavior from CAMELS-FR time series.
+  \item Water balance (annual and seasonal): precipitation, runoff, PET, residual.
+\end{itemize}
+
+\textbf{Study scope.} This report uses the CAMELS-FR dataset and SRTM DEM for one focus basin (La Dore, station K287191001). IMERG and SMAP remote-sensing products are not used in the present analysis; they are reserved for future work (bias assessment, spatial representativeness, storage constraints).
+
+% ========== 2) STUDY AREA ==========
+\section{Study Area}
+
+\subsection{Location and Boundary}
+\label{sec:location}
+
+The study basin is La Dore at Saint-Gervais-sous-Meymont (station code K287191001), catchment area 795\,km², outlet elevation 398\,m\,a.s.l.; it is one of the CAMELS-FR basins with area 500--1000\,km² (see Appendix~\ref{app:basins}). Figure~\ref{fig:basin_map} shows the catchment boundary and gauge outlet on a basemap.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{map_basin_outlet}
+\caption{Catchment boundary and gauge outlet for station K287191001 (La Dore à Saint-Gervais-sous-Meymont). Area 795\,km²; outlet elevation 398\,m\,a.s.l. Map displayed in Web Mercator (EPSG:3857).}
+\label{fig:basin_map}
+\end{figure}
+
+The basin lies in the Massif Central (France); coordinates at the outlet are approximately 3.61°E, 45.69°N (WGS84). The climate is temperate oceanic with continental influence; precipitation and runoff exhibit seasonal variability (winter--spring high flows, summer low flows).
+
+\subsection{Morphometry and Shape Metrics}
+
+Table~\ref{tab:basin_metrics} summarizes basin geometry, elevation, slope, shape, and drainage metrics. The compactness coefficient (1.88) indicates a moderately elongated shape; relief (1232\,m) and mean slope (8.5°) reflect the upland character. Drainage density (0.65\,km$^{-1}$) is typical of permeable, well-vegetated catchments.
+
+\begin{table}[htbp]
+\centering
+\caption{Basin physiography and morphometric metrics for La Dore (K287191001).}
+\label{tab:basin_metrics}
+\input{basin_metrics_table.tex}
+\end{table}
+
+\subsection{Drainage Network Characteristics}
+
+The stream network is overlaid on the basin map (Figure~\ref{fig:basin_map}). Streams were defined by a flow-accumulation threshold of 200 cells (30\,m resolution), yielding a dendritic network consistent with the basin morphology. The main channel was traced from the outlet upstream; its length is reported in Table~\ref{tab:basin_metrics}.
+
+\subsection{Hypsometry and Altimetry}
+
+Figure~\ref{fig:hypsometric} shows the hypsometric curve and Figure~\ref{fig:altimetric} the cumulative area--elevation (altimetric) curve. The hypsometric integral is 0.37, indicating a basin with a relatively uniform distribution of area with elevation (neither strongly youth-like nor equilibrium). The altimetric curve shows most of the area between about 400 and 1200\,m\,a.s.l.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1\columnwidth]{hypsometric_curve}
+\caption{Hypsometric curve: normalized elevation vs normalized cumulative area.}
+\label{fig:hypsometric}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1\columnwidth]{altimetric_curve}
+\caption{Altimetric curve: cumulative area vs elevation (m\,a.s.l.).}
+\label{fig:altimetric}
+\end{figure}
+
+% ========== 3) DATA ==========
+\section{Data}
+
+\subsection{CAMELS-FR}
+
+Attributes used: station general (\texttt{sta\_area\_snap}, \texttt{sta\_altitude\_snap}), topography (elevation, slope, drainage density, compactness, form factor, etc.). Time series: daily and monthly precipitation (\texttt{tsd\_prec}, \texttt{tsm\_prec}), discharge (\texttt{tsd\_q\_mm}, \texttt{tsm\_q\_mm}), potential evapotranspiration Oudin (\texttt{tsd\_pet\_ou}, \texttt{tsm\_pet\_ou}), and temperature (\texttt{tsd\_temp}, \texttt{tsm\_temp}). Analysis period: 1990--2020 for water balance and flow duration curve; time-series snippet figure uses 2017--2020. Missing-data policy: days with missing or invalid discharge are dropped; monthly aggregates use only months with at least 90\% valid days.
+
+\subsection{Remote Sensing}
+
+SRTM DEM (30\,m) is used for terrain and stream network derivation. GPM IMERG and SMAP are available for future extension (precipitation bias, soil moisture); they are not used in this report.
+
+% ========== 4) METHODS ==========
+\section{Methods}
+
+\subsection{GIS and DEM Processing}
+
+Basin boundary and outlet are taken from CAMELS-FR geography (catchment boundaries and gauge outlet \texttt{.gpkg}). DEM preprocessing: projection to a metric CRS, optional sink filling, flow direction and flow accumulation (D8). Streams are defined by an accumulation threshold (value stated in script and below). Main channel (longest flow path) is delineated from the outlet upstream; Strahler order is assigned to the network.
+
+\subsection{Computation of Basin Metrics}
+
+Compactness coefficient (Gravelius): $C = P / (2\sqrt{\pi A})$, with $P$ perimeter and $A$ area. Drainage density: $D_d = \sum L / A$ (total stream length over area). Hypsometric curve: normalized elevation $(z - z_{\min})/(z_{\max} - z_{\min})$ vs normalized cumulative area; hypsometric integral is the area under this curve.
+
+\subsection{Water Balance Framework}
+
+Long-term: $P - Q - \mathrm{PET} \approx \Delta S$; over many years $\Delta S \to 0$. Seasonal/monthly: residual $\Delta S = P - Q - \mathrm{PET}$ (interpreted cautiously as storage change). Runoff ratio $Q/P$. Metrics: mean annual $P$, $Q$, PET (mm/yr), residual, runoff ratio, residual fraction $(P - Q - \mathrm{PET})/P$. Monthly climatology: 12-month average of $P$, $Q$, PET.
+
+\subsection{Uncertainty and Assumptions}
+
+Discharge is from a single gauge and is assumed representative of basin outlet runoff. Precipitation and PET are from the SAFRAN reanalysis and ISBA land-surface model (Météo-France); they are spatially aggregated to the catchment and may not capture local variability. PET (Oudin) is a potential, not actual, evapotranspiration; the residual in the water balance includes storage change and any bias in P or PET. The basin has non-negligible relief and winter precipitation; snow accumulation and melt can contribute to seasonal storage and are not explicitly separated here.
+
+% ========== 5) RESULTS ==========
+\section{Results}
+
+\subsection{Basin Physiography}
+
+Table~\ref{tab:basin_metrics} gives the headline metrics. Key numbers: area 795\,km², perimeter 188\,km, relief 1232\,m, mean slope 8.5°, compactness coefficient 1.88, drainage density 0.65\,km$^{-1}$. The basin is moderately elongated with substantial relief; the main channel length (about 10\,km from DEM) is shorter than the basin length (32\,km), consistent with a branched network. Over the analysis period (1990--2020), mean annual precipitation is 1055\,mm/yr, runoff 381\,mm/yr, and PET (Oudin) 592\,mm/yr; the runoff ratio $Q/P$ is 0.36 and the long-term residual fraction $(P - Q - \mathrm{PET})/P$ is about 8\%.
+
+\subsection{Hydroclimate and Runoff Behavior}
+
+Figure~\ref{fig:timeseries_snippet} shows discharge, rainfall, and temperature for 2017--2020 with aligned time axis. Figure~\ref{fig:climatology} shows monthly climatology; Figure~\ref{fig:fdc} the flow duration curve.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=1\textwidth]{timeseries_flow_precip_temp_2017_2020}
+\caption{Daily time series of flow rate, rainfall, PET, and temperature (2017--2020). Shared time axis.}
+\label{fig:timeseries_snippet}
+\end{figure*}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1\columnwidth]{monthly_climatology}
+\caption{Monthly climatology (1990--2020): 12-month average of precipitation, discharge, and PET.}
+\label{fig:climatology}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=1\columnwidth]{flow_duration_curve}
+\caption{Flow duration curve (daily Q, 1990--2020): percent of time flow is exceeded vs discharge.}
+\label{fig:fdc}
+\end{figure}
+
+\subsection{Water Balance}
+
+Figure~\ref{fig:water_balance} shows annual $P$, $Q$, PET, and residual by year. Long-term means (1990--2020): $P \approx 1055$\,mm/yr, $Q \approx 381$\,mm/yr, PET $\approx 592$\,mm/yr; runoff ratio $Q/P \approx 0.36$; residual (storage term) $\approx 82$\,mm/yr ($\sim$8\% of $P$). The positive residual on average is consistent with minor storage accumulation or uncertainty in P/PET. Seasonal residuals (from monthly climatology) reflect soil moisture and, in winter, possible snow storage.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=1\textwidth]{annual_water_balance}
+\caption{Annual water balance: precipitation, discharge, PET, and residual (mm/yr) by year.}
+\label{fig:water_balance}
+\end{figure*}
+
+% ========== 6) DISCUSSION ==========
+\section{Discussion}
+
+Runoff in La Dore is controlled by seasonal precipitation and PET (higher $Q$ in winter--spring, lower in summer), by the basin's moderate slopes and drainage density, and by storage (soil moisture, possibly snow). A runoff ratio of 0.36 is within the range typical for temperate, mid-elevation catchments. Limitations include single-gauge discharge, reanalysis-based P and PET, and the use of PET rather than actual ET. Future work with IMERG could assess precipitation bias and spatial representativeness; SMAP could constrain seasonal storage and improve water-balance closure.
+
+% ========== 7) CONCLUSION ==========
+\section{Conclusion}
+
+\begin{itemize}
+  \item Basin La Dore (K287191001): 795\,km², relief 1232\,m, compactness 1.88, drainage density 0.65\,km$^{-1}$.
+  \item Hypsometric integral 0.37; stream network and main channel derived from SRTM (threshold 200 cells).
+  \item Analysis period 1990--2020: mean annual P $\approx 1055$\,mm/yr, Q $\approx 381$\,mm/yr, PET $\approx 592$\,mm/yr.
+  \item Runoff ratio $Q/P \approx 0.36$; residual $\approx 8$\% of $P$.
+  \item Time series (2017--2020), monthly climatology, flow duration curve, and annual water balance are presented.
+  \item Next steps: IMERG bias check, SMAP for storage constraint, and potential use of these data for model calibration or regionalization.
+\end{itemize}
+
+\printbibliography
+
+\clearpage
+\appendix
+\onecolumn
+\section{CAMELS-FR basins with catchment area 500--1000\,km²}
+\label{app:basins}
+
+The following 77 basins from the CAMELS-FR dataset have catchment area between 500 and 1000\,km² and an outlet gauge. Station code: Hydroportail \texttt{sta\_code\_h3}. Sorted by catchment area.
+
+\textbf{Column definitions.} Outlet alt.\ is the elevation (m\,a.s.l.) of the gauge at the catchment outlet. Mean flow is mean annual runoff (mm/yr). \textbf{Agr.\ (agriculture)} is the percentage of the catchment area classified as agricultural land (CORINE Land Cover 2018, level~1), aggregated to the catchment.
+
+\small
+\begin{center}
+\begin{longtable}{@{}c p{0.75cm} l >{\raggedright\arraybackslash}p{4.2cm} l r r r@{}}
+\toprule
+\# & Area & Code & Station (river at location) & Period & Out.\ alt (m) & Mean flow (mm/yr) & Agr.\ (\%) \\
+\midrule
+\endfirsthead
+
+\multicolumn{8}{l}{\footnotesize continued from previous page} \\
+\midrule
+\# & Area & Code & Station (river at location) & Period & Out.\ alt (m) & Mean flow (mm/yr) & Agr.\ (\%) \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{8}{r}{\footnotesize continued on next page} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+\input{basin_table_rows.tex}
+\end{longtable}
+\end{center}
+\normalsize
+
+\end{document}

@@ -1,0 +1,56 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.xdv
+*.fdb_latexmk
+*.toc
+*.lof
+*.lot
+*.blg
+*.bbl
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Optional: exclude large data files (uncomment if you don't want to track data/)
+# data/
+
+# CAMELS-FR full dataset (>1 GB; scripts use data/camels_required/)
+data/CAMELS-FR/
+
+# IDE
+.vscode/
+.idea/
+.archive/
+.cursor/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Remote sensing raw data (typically large files)
+data/raw_data/*
+!data/raw_data/README.md
+!data/raw_data/.gitkeep
+
+# Processed data (can be regenerated, but may want to track)
+# Uncomment if you don't want to track processed data:
+# data/processed_data/*
+# !data/processed_data/README.md
+# !data/processed_data/.gitkeep

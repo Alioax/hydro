@@ -1,0 +1,6 @@
+Mean annual P (mm/yr): 1054.8
+Mean annual Q (mm/yr): 380.7
+Mean annual PET (mm/yr): 591.9
+Mean residual (mm/yr): 82.2
+Runoff ratio (Q/P): 0.361
+Residual fraction ((P-Q-PET)/P): 0.078
